@@ -26,10 +26,10 @@ description: >- # used by seo meta and the atom feed
   Moje małe miejsce w sieci.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: ""
+url: "https://ceglarek.com.pl"
 
 github:
-  username: #github_username # change to your github username
+  username: acegla # change to your github username
 
 twitter:
   username: #twitter_username # change to your twitter username
@@ -38,8 +38,8 @@ social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: AC
-  email: example@domain.com # change to your email address
-  links:
+  email: #example@domain.com # change to your email address
+  # links:
     # The first element serves as the copyright owner's link
     # - https://twitter.com/username # change to your twitter homepage
     # - https://github.com/username # change to your github homepage

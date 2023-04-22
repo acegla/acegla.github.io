@@ -49,6 +49,8 @@ _preflight checklist_
 Wynajęliśmy box-a na dach - co ciekawe nasze autko w bagażniku ma 355l a na dachu dodatkowe 400l
 
 
+![box](box.jpg){: .shadow }
+_więcej miejsca_
 ![suzuki](car.jpg){: .shadow }
 _miejski przecinak w terenie_
 

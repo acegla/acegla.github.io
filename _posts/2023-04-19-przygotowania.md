@@ -1,5 +1,5 @@
 ---
-title: Wyjazd
+title: Przygotowania
 date: 2023-04-17
 categories: [słowenia 2023]
 tags: [słowenia]
@@ -65,12 +65,15 @@ Zwykle taka mapka rozwija się łącznie z biegiem wyjazdu.
 ## Koszty
 Na koniec wyjazdu będzie na pewno podsumowanie kosztów ale wydatki przed wyjazdem.
 
-| Co      | ile  |
+| Co      | ile  | link|
 | ----------- | ----------- |
-| Mieszkanie 1   | 1400 zł       |
-| Mieszkanie 2   | 1400 zł       |
-| Mieszkanie 3   | 1100 zł       |
-| Mieszkanie 4   | 1100 zł       |
-| wynajem boxa   | 250 zł       |
-| Ubezpieczenie wyjazdu  | 782 zł       |
+| Mieszkanie 1   | 1400 zł       | <https://www.airbnb.pl/rooms/33985176> |
+| Mieszkanie 2   | 1400 zł       | <https://www.airbnb.pl/rooms/45392202>|
+| Mieszkanie 3   | 1100 zł       | <https://www.airbnb.pl/rooms/45392202>|
+| Mieszkanie 4   | 1100 zł       | <https://www.airbnb.pl/rooms/32806811>|
+| wynajem boxa   | 250 zł       | [Boxy Skórzewo](https://bit.ly/3Lnegkj)|
+| Ubezpieczenie wyjazdu  | 782 zł       | [**jak potrzebujesz jakiekolwiek ubezpieczenie uderzaj do Bartka!**](https://bit.ly/40w2HeU) |
 
+
+
+**c.d.n**

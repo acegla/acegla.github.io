@@ -78,4 +78,10 @@ Na koniec wyjazdu będzie na pewno podsumowanie kosztów ale wydatki przed wyjaz
 
 
 
+> 📷 📷 📷 🤳 🤳 🤳 🖼️ 🖼️ 🖼️<br/>
+> 🖼️ [**Link do galerii**](https://bit.ly/3N4EzNk) 🖼️<br/> 
+> 📷 📷 📷 🤳 🤳 🤳 🖼️ 🖼️ 🖼️
+{: .prompt-info }
+
+
 **c.d.n**

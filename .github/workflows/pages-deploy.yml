@@ -38,6 +38,12 @@ jobs:
         id: pages
         uses: actions/configure-pages@v3
 
+      - name: install pillow
+        run: pip install pillow
+
+      - name: resize all photos
+        run: python py_utils/resize_img.py
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:

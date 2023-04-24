@@ -71,9 +71,10 @@ Na koniec wyjazdu będzie na pewno podsumowanie kosztów ale wydatki przed wyjaz
 | ----------- | ----------- |
 | Mieszkanie 1   | 1400 zł       | <https://www.airbnb.pl/rooms/33985176> |
 | Mieszkanie 2   | 1400 zł       | <https://www.airbnb.pl/rooms/45392202>|
-| Mieszkanie 3   | 1100 zł       | <https://www.airbnb.pl/rooms/45392202>|
+| Mieszkanie 3   | 1100 zł       | <https://www.airbnb.pl/rooms/4322730>|
 | Mieszkanie 4   | 1100 zł       | <https://www.airbnb.pl/rooms/32806811>|
 | wynajem boxa   | 250 zł       | [Boxy Skórzewo](https://bit.ly/3Lnegkj)|
+| winiety (Czechy, Austria, Słowenia)   | 456 zł       | [Winiety](https://www.pzmtravel.com.pl/informacja-o-oplatach-drogowych.html)|
 | Ubezpieczenie wyjazdu  | 782 zł       | [**jak potrzebujesz jakiekolwiek ubezpieczenie uderzaj do Bartka!**](https://bit.ly/40w2HeU) |
 
 

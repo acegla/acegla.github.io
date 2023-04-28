@@ -1,4 +1,5 @@
-from PIL import Image
+from PIL import Image, ImageOps
+
 import os
 import io
 import sys
@@ -27,12 +28,15 @@ def compress_image_to_target_size(image, target_size, output_path):
 
         quality -= 5
 
-    with open(output_path, "wb") as output_file:
-        output_file.write(buffer.getvalue())
+    image.save(output_path,
+               format="JPEG", quality=quality)
+    # with open(output_path, "wb") as output_file:
+    #     output_file.write(buffer.getvalue())
 
 
 def main(input_path, output_path, target_file_size, max_size):
     image = Image.open(input_path)
+    image = ImageOps.exif_transpose(image)
     resized_image = resize_image(image, max_size)
     compress_image_to_target_size(resized_image, target_file_size, output_path)
 

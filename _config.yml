@@ -79,7 +79,7 @@ theme_mode: # [light|dark]
 img_cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar: https://scontent.flju1-1.fna.fbcdn.net/v/t1.6435-9/31590071_1954036701336890_6139146061568016384_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=nXnJLC7RJgUAX-KOo3C&_nc_ht=scontent.flju1-1.fna&oh=00_AfDXxjT24DTj1tagwtYDuKtG0tBZPOBymaW09re1iSTN-A&oe=6467C7EA
+# avatar: assets/photos/2023-04-20/pod mostem.jpg
 
 # boolean type, the global switch for TOC in posts.
 toc: true

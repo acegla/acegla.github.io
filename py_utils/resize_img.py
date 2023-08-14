@@ -16,7 +16,7 @@ def resize_image(image, max_size):
 def compress_image_to_target_size(image, target_size, output_path):
     quality = 100
     temp_image = image.copy()
-
+    temp_image = temp_image.convert('RGB')
     while True:
         buffer = io.BytesIO()
         temp_image.save(buffer, format="JPEG", quality=quality)
@@ -28,7 +28,7 @@ def compress_image_to_target_size(image, target_size, output_path):
 
         quality -= 5
 
-    image.save(output_path,
+    temp_image.save(output_path,
                format="JPEG", quality=quality)
     # with open(output_path, "wb") as output_file:
     #     output_file.write(buffer.getvalue())

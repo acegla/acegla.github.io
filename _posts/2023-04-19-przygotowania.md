@@ -1,8 +1,8 @@
 ---
 title: Przygotowania
 date: 2023-04-17
-categories: [słowenia 2023]
-tags: [słowenia]
+categories: [Słowenia 2023]
+tags: [Słowenia]
 # mermaid: true
 # published: false
 img_path: /assets/photos/2023-04-19-init/

@@ -12,12 +12,19 @@
 4. add post by add new md file in _post
 5. keep photos in assets/photos by date of post
 6. before push run adjust photo size
-   1.   ```bash 
-        python -m venv venv
-        source venv/bin/activate
-        pip install -r py_utils/requirements.txt
-        python py_utils/resize_img.py
-        ```
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r py_utils/requirements.txt
+   python py_utils/resize_img.py
+   ```
+
+   or to run only when have a venv
+
+   ```bash
+   ./venv/bin/python py_utils/resize_img.py
+   ```
 
 
 

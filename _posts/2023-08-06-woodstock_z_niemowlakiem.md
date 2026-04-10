@@ -3,7 +3,7 @@ title: Woodstock z niemowlakiem
 date: 2023-08-06
 categories: [wyjazdy krótkie]
 tags: [woodstock, namiot]
-img_path: /assets/photos/2023-08-06/
+media_subpath: /assets/photos/2023-08-06/
 
 ---
 

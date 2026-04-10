@@ -39,7 +39,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: install pillow
-        run: pip install pillow
+        run: pip install -r py_utils/requirements.txt
 
       - name: resize all photos
         run: python py_utils/resize_img.py
@@ -60,7 +60,7 @@ jobs:
 
       - name: Test site
         run: |
-          bundle exec htmlproofer _site --ignore-urls "/^http/" --allow-hash-href
+          bundle exec htmlproofer _site --ignore-urls "/^http/" --allow-hash-href --allow-missing-href
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

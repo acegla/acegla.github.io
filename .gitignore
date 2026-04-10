@@ -20,4 +20,8 @@ package-lock.json
 
 # Misc
 assets/js/dist
+
+node_modules
+venv
+.DS_Store
 .env

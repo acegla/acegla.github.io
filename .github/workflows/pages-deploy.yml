@@ -2,8 +2,7 @@ name: "Build and Deploy"
 on:
   push:
     branches:
-      - main
-      - master
+      - gh-pages
     paths-ignore:
       - .gitignore
       - README.md
@@ -39,11 +38,20 @@ jobs:
         id: pages
         uses: actions/configure-pages@v3
 
+      - name: install pillow
+        run: pip install pillow
+
+      - name: resize all photos
+        run: python py_utils/resize_img.py
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3   # reads from a '.ruby-version' or '.tools-version' file if 'ruby-version' is omitted
           bundler-cache: true
+      
+      - name: update secret
+        run: sed -i 's/GOOGLE_ANALYTICS_ID/${{ secrets.GOOGLE_ANALYTICS_ID }}/g' _config.yml
 
       - name: Build site
         run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"

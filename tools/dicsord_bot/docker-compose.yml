@@ -1,0 +1,7 @@
+# Dodaj do istniejącego docker-compose.yml lub użyj samodzielnie
+
+services:
+  blog-bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env

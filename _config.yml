@@ -178,6 +178,7 @@ exclude:
   - "*.gem"
   - "*.gemspec"
   - tools
+  - py_utils
   - README.md
   - CHANGELOG.md
   - LICENSE

@@ -1,11 +1,19 @@
-import discord
-from discord import app_commands
 import os
 from dotenv import load_dotenv
-from claude_client import generate_draft
-from github_client import commit_post
 
 load_dotenv()
+import discord
+from discord import app_commands
+from github_client import commit_post
+
+LLM_BACKEND = os.getenv("LLM_BACKEND", "claude").lower()
+
+if LLM_BACKEND == "ollama":
+    from ollama_client import generate_draft
+    print(f"LLM backend: ollama ({os.getenv('OLLAMA_MODEL', 'llama3.2')} @ {os.getenv('OLLAMA_HOST', 'http://localhost:11434')})")
+else:
+    from claude_client import generate_draft
+    print(f"LLM backend: claude ({os.getenv('CLAUDE_MODEL', 'claude-opus-4-5')})")
 
 BLOG_CHANNEL_ID = int(os.getenv("BLOG_CHANNEL_ID"))
 
@@ -97,7 +105,7 @@ async def _handle_draft(interaction: discord.Interaction, publish: bool):
     try:
         md_content, slug, images = await generate_draft(pending_messages)
     except Exception as e:
-        await interaction.followup.send(f"❌ Blad Claude API: {e}")
+        await interaction.followup.send(f"❌ Blad LLM ({LLM_BACKEND}): {e}")
         return
 
     if publish:
@@ -114,7 +122,14 @@ async def _handle_draft(interaction: discord.Interaction, publish: bool):
             await interaction.followup.send(f"❌ Blad GitHub API: {e}")
     else:
         fname = f"{slug}.md"
-        fpath = f"/tmp/{fname}"
+
+        try:
+            fpath = f"/tmp/{fname}"
+            # check if /tmp exists
+            if not os.path.exists("/tmp"):
+                fpath = f"{fname}"
+        except FileNotFoundError:
+            fpath = f"{fname}"
         with open(fpath, "w", encoding="utf-8") as f:
             f.write(md_content)
         await interaction.followup.send(

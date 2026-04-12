@@ -5,6 +5,8 @@ load_dotenv()
 import discord
 from discord import app_commands
 from github_client import commit_post
+import buffer as buf
+import image_cache
 
 LLM_BACKEND = os.getenv("LLM_BACKEND", "claude").lower()
 
@@ -16,8 +18,6 @@ else:
     print(f"LLM backend: claude ({os.getenv('CLAUDE_MODEL', 'claude-opus-4-5')})")
 
 BLOG_CHANNEL_ID = int(os.getenv("BLOG_CHANNEL_ID"))
-
-pending_messages = []
 
 
 class BlogBot(discord.Client):
@@ -32,7 +32,8 @@ class BlogBot(discord.Client):
         print("Slash commands zsynchronizowane.")
 
     async def on_ready(self):
-        print(f"Bot gotowy: {self.user}")
+        entries = buf.load()
+        print(f"Bot gotowy: {self.user} (bufor: {len(entries)} wpisów)")
 
 
 client = BlogBot()
@@ -57,9 +58,15 @@ async def on_message(message):
     }
     for att in message.attachments:
         if any(att.filename.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".gif", ".webp"]):
-            entry["images"].append({"filename": att.filename, "url": att.url})
+            try:
+                await image_cache.fetch_and_save(att.url, att.filename)
+                entry["images"].append({"filename": att.filename, "url": att.url})
+                await message.add_reaction("🖼️")
+            except Exception as e:
+                await message.add_reaction("⚠️")
+                print(f"Nie udało się pobrać zdjęcia {att.filename}: {e}")
 
-    pending_messages.append(entry)
+    buf.append(entry)
     await message.add_reaction("✅")
 
 
@@ -79,31 +86,39 @@ async def slash_publish(interaction: discord.Interaction):
 
 @client.tree.command(name="blog-status", description="Ile notatek i zdjec czeka w buforze")
 async def slash_status(interaction: discord.Interaction):
-    if not pending_messages:
+    entries = buf.load()
+    if not entries:
         await interaction.response.send_message("Bufor pusty. Wrzuc cos przed draftem.")
         return
-    count_imgs = sum(len(e["images"]) for e in pending_messages)
+    count_imgs = sum(len(e["images"]) for e in entries)
+    first_ts = entries[0]["timestamp"]
+    last_ts = entries[-1]["timestamp"]
     await interaction.response.send_message(
-        f"📦 W buforze: **{len(pending_messages)}** wpisow, **{count_imgs}** zdjec.\n"
+        f"📦 W buforze: **{len(entries)}** wpisow, **{count_imgs}** zdjec.\n"
+        f"🗓️ Zakres: {first_ts} → {last_ts}\n"
         f"Uzyj `/blog-draft` zeby podejrzec lub `/blog-publish` zeby commitowac."
     )
 
 
 @client.tree.command(name="blog-clear", description="Czysci bufor notatek bez publikowania")
 async def slash_clear(interaction: discord.Interaction):
-    pending_messages.clear()
-    await interaction.response.send_message("🗑️ Bufor wyczyszczony.")
+    entries = buf.load()
+    count = len(entries)
+    imgs = image_cache.clear_all()
+    buf.clear()
+    await interaction.response.send_message(f"🗑️ Bufor wyczyszczony ({count} wpisów, {imgs} zdjęć).")
 
 
 # ── Wspólna logika draft/publish ───────────────────────────────────────────────
 
 async def _handle_draft(interaction: discord.Interaction, publish: bool):
-    if not pending_messages:
+    entries = buf.load()
+    if not entries:
         await interaction.followup.send("Bufor pusty — najpierw wrzuc jakies notatki.")
         return
 
     try:
-        md_content, slug, images = await generate_draft(pending_messages)
+        md_content, slug, images = await generate_draft(entries)
     except Exception as e:
         await interaction.followup.send(f"❌ Blad LLM ({LLM_BACKEND}): {e}")
         return
@@ -111,7 +126,8 @@ async def _handle_draft(interaction: discord.Interaction, publish: bool):
     if publish:
         try:
             commit_url, pr_url = await commit_post(md_content, slug, images)
-            pending_messages.clear()
+            buf.clear()
+            image_cache.clear_all()
             await interaction.followup.send(
                 f"✅ Scommitowano na branch `drafts`!\n"
                 f"📝 PR do review: {pr_url}\n"

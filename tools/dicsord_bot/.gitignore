@@ -1,3 +1,6 @@
 venv/
 __pycache__/
 .env
+buffer.json
+blog_context.md
+images/

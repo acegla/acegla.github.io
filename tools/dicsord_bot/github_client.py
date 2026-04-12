@@ -2,6 +2,7 @@ import base64
 import os
 import aiohttp
 from datetime import date
+import image_cache
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")  # "username/blog-repo"
@@ -120,9 +121,15 @@ async def commit_post(md_content: str, slug: str, images: list) -> str:
             img_path = f"assets/images/{img['filename']}"
             print(f"Uploading {img_path}...")
             try:
-                img_bytes = await download_discord_image(session, img["url"])
+                # Preferuj lokalny cache, fallback na Discord CDN
+                if image_cache.is_cached(img["filename"]):
+                    img_bytes = image_cache.read(img["filename"])
+                else:
+                    print(f"  ⚠ Brak w cache, próbuję Discord CDN (może być wygasłe)...")
+                    img_bytes = await download_discord_image(session, img["url"])
+
                 sha = await get_file_sha(session, img_path)
-                result = await put_file(
+                await put_file(
                     session,
                     img_path,
                     img_bytes,

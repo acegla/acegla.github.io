@@ -6,8 +6,9 @@ Cache jest unieważniany przy dodaniu nowej notatki lub wyczyszczeniu bufora.
 
 import json
 from pathlib import Path
+from data_dir import DATA_DIR
 
-DRAFT_FILE = Path(__file__).parent / "draft_cache.json"
+DRAFT_FILE = DATA_DIR / "draft_cache.json"
 
 
 def save(md_content: str, slug: str, images: list) -> None:

@@ -5,8 +5,9 @@ Przeżywa restarty bota, pozwala zbierać notatki przez wiele dni.
 
 import json
 from pathlib import Path
+from data_dir import DATA_DIR
 
-BUFFER_FILE = Path(__file__).parent / "buffer.json"
+BUFFER_FILE = DATA_DIR / "buffer.json"
 
 
 def load() -> list:

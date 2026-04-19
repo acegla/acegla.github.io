@@ -30,6 +30,8 @@ class BlogBot(discord.Client):
 
     async def setup_hook(self):
         await self.tree.sync()
+        guild = discord.Object(id=int(os.getenv("DISCORD_GUILD_ID", 0)))
+        await self.tree.sync(guild=guild)
         print("Slash commands zsynchronizowane.")
 
     async def on_ready(self):

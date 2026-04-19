@@ -6,8 +6,9 @@ zanim wygasną linki CDN (~24h).
 
 import aiohttp
 from pathlib import Path
+from data_dir import DATA_DIR
 
-CACHE_DIR = Path(__file__).parent / "images"
+CACHE_DIR = DATA_DIR / "images"
 
 
 def ensure_dir() -> None:

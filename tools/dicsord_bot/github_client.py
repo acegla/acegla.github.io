@@ -67,20 +67,18 @@ async def download_discord_image(session: aiohttp.ClientSession, url: str) -> by
         return await r.read()
 
 
-async def ensure_draft_branch_exists(session: aiohttp.ClientSession) -> None:
+async def ensure_draft_branch_exists(session: aiohttp.ClientSession, branch: str) -> None:
     """
-    Tworzy branch GITHUB_DRAFT_BRANCH jeśli nie istnieje.
+    Tworzy branch jeśli nie istnieje.
     Bazuje na HEAD brancha GITHUB_BRANCH (main/master).
     """
-    # Sprawdź czy draft branch już istnieje
     async with session.get(
-        f"https://api.github.com/repos/{GITHUB_REPO}/git/ref/heads/{GITHUB_DRAFT_BRANCH}",
+        f"https://api.github.com/repos/{GITHUB_REPO}/git/ref/heads/{branch}",
         headers=HEADERS
     ) as r:
         if r.status == 200:
             return  # już istnieje
 
-    # Pobierz SHA HEAD brancha bazowego
     async with session.get(
         f"https://api.github.com/repos/{GITHUB_REPO}/git/ref/heads/{GITHUB_BRANCH}",
         headers=HEADERS
@@ -90,15 +88,14 @@ async def ensure_draft_branch_exists(session: aiohttp.ClientSession) -> None:
         data = await r.json()
         base_sha = data["object"]["sha"]
 
-    # Utwórz branch
     async with session.post(
         f"https://api.github.com/repos/{GITHUB_REPO}/git/refs",
         headers=HEADERS,
-        json={"ref": f"refs/heads/{GITHUB_DRAFT_BRANCH}", "sha": base_sha}
+        json={"ref": f"refs/heads/{branch}", "sha": base_sha}
     ) as r:
         if r.status not in (200, 201):
-            raise Exception(f"Nie mogę utworzyć brancha {GITHUB_DRAFT_BRANCH}: {await r.text()}")
-        print(f"  ✓ Utworzono branch '{GITHUB_DRAFT_BRANCH}' z {GITHUB_BRANCH}")
+            raise Exception(f"Nie mogę utworzyć brancha {branch}: {await r.text()}")
+        print(f"  ✓ Utworzono branch '{branch}' z {GITHUB_BRANCH}")
 
 
 async def commit_post(md_content: str, slug: str, images: list) -> str:
@@ -108,13 +105,14 @@ async def commit_post(md_content: str, slug: str, images: list) -> str:
     Zwraca URL commita i URL PR.
     """
     today = date.today().isoformat()
+    draft_branch = f"{GITHUB_DRAFT_BRANCH}/{today}"
     post_path = f"_posts/{slug}.md"
     commit_url = None
 
     async with aiohttp.ClientSession() as session:
 
         # 0. Upewnij się że draft branch istnieje
-        await ensure_draft_branch_exists(session)
+        await ensure_draft_branch_exists(session, draft_branch)
 
         # 1. Commituj zdjęcia
         for img in images:
@@ -135,7 +133,7 @@ async def commit_post(md_content: str, slug: str, images: list) -> str:
                     img_bytes,
                     f"blog: add image {img['filename']} for {today}",
                     sha,
-                    branch=GITHUB_DRAFT_BRANCH
+                    branch=draft_branch
                 )
                 print(f"  ✓ {img_path}")
             except Exception as e:
@@ -150,39 +148,37 @@ async def commit_post(md_content: str, slug: str, images: list) -> str:
             md_content.encode("utf-8"),
             f"blog: add post {slug}",
             sha,
-            branch=GITHUB_DRAFT_BRANCH
+            branch=draft_branch
         )
         commit_url = result["commit"]["html_url"]
         print(f"  ✓ {post_path}")
 
         # 3. Utwórz PR jeśli nie istnieje dla tego brancha
-        pr_url = await ensure_pull_request(session, slug)
+        pr_url = await ensure_pull_request(session, slug, draft_branch)
 
     return commit_url, pr_url
 
 
-async def ensure_pull_request(session: aiohttp.ClientSession, slug: str) -> str:
+async def ensure_pull_request(session: aiohttp.ClientSession, slug: str, branch: str) -> str:
     """
-    Tworzy PR z GITHUB_DRAFT_BRANCH → GITHUB_BRANCH jeśli jeszcze nie ma otwartego.
+    Tworzy PR z branch → GITHUB_BRANCH jeśli jeszcze nie ma otwartego.
     Zwraca URL PR.
     """
-    # Sprawdź czy jest już otwarty PR dla tego brancha
     async with session.get(
         f"https://api.github.com/repos/{GITHUB_REPO}/pulls",
         headers=HEADERS,
-        params={"state": "open", "head": f"{GITHUB_REPO.split('/')[0]}:{GITHUB_DRAFT_BRANCH}"}
+        params={"state": "open", "head": f"{GITHUB_REPO.split('/')[0]}:{branch}"}
     ) as r:
         pulls = await r.json()
         if pulls:
-            return pulls[0]["html_url"]  # już istnieje
+            return pulls[0]["html_url"]
 
-    # Utwórz nowy PR
     async with session.post(
         f"https://api.github.com/repos/{GITHUB_REPO}/pulls",
         headers=HEADERS,
         json={
             "title": f"Blog draft: {slug}",
-            "head": GITHUB_DRAFT_BRANCH,
+            "head": branch,
             "base": GITHUB_BRANCH,
             "body": "Draft wygenerowany przez blog bota. Przejrzyj i zmerguj gdy gotowe."
         }
@@ -190,5 +186,4 @@ async def ensure_pull_request(session: aiohttp.ClientSession, slug: str) -> str:
         if r.status in (200, 201):
             data = await r.json()
             return data["html_url"]
-        # PR mógł już istnieć (race condition) — nie rzucaj błędu
         return f"https://github.com/{GITHUB_REPO}/pulls"

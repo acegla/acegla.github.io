@@ -38,7 +38,7 @@ cp .env.example .env
 
 **Przez Docker (zalecane):**
 ```bash
-docker compose up -d
+docker compose up -d --build
 docker compose logs -f  # sprawdź czy działa
 ```
 
@@ -47,6 +47,19 @@ docker compose logs -f  # sprawdź czy działa
 pip install -r requirements.txt
 python bot.py
 ```
+
+---
+
+## Aktualizacja (po zmianach w kodzie)
+
+```bash
+git pull
+docker compose up -d --build
+docker compose logs -f  # upewnij się że bot wystartował
+```
+
+`docker compose down` bez `-v` nie usuwa danych (bufora, zdjęć) — volume `blog-bot-data` zostaje.  
+`docker compose down -v` usuwa wszystko łącznie z danymi — **nie używaj** chyba że chcesz reset.
 
 ---
 

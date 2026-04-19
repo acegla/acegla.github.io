@@ -79,6 +79,7 @@ async def slash_help(interaction: discord.Interaction):
     await interaction.response.send_message(
         "**Blog Bot — dostepne komendy**\n\n"
         "`/blog-help` — ta wiadomosc\n"
+        "`/blog-raw` — podglad surowych notatek z bufora (bez zdjec)\n"
         "`/blog-status` — ile notatek i zdjec czeka w buforze\n"
         "`/blog-draft` — generuje podglad posta (nic nie commituje)\n"
         "`/blog-publish` — commituje draft z podgladu na branch `drafts` i otwiera PR\n"
@@ -121,21 +122,6 @@ async def slash_status(interaction: discord.Interaction):
         f"🗓️ Zakres: {first_ts} → {last_ts}\n"
         f"Uzyj `/blog-draft` zeby podejrzec lub `/blog-publish` zeby commitowac."
     )
-
-
-@client.tree.command(name="blog-raw", description="Wypisuje surowe notatki z bufora (bez zdjec)")
-async def slash_raw(interaction: discord.Interaction):
-    entries = buf.load()
-    if not entries:
-        await interaction.response.send_message("Bufor pusty.", ephemeral=True)
-        return
-    lines = []
-    for e in entries:
-        lines.append(f"**[{e['timestamp']}] {e['author']}**\n{e['text']}")
-    raw = "\n\n".join(lines)
-    if len(raw) > 1900:
-        raw = raw[:1900] + "\n… (obciete)"
-    await interaction.response.send_message(raw, ephemeral=True)
 
 
 @client.tree.command(name="blog-clear", description="Czysci bufor notatek bez publikowania")

@@ -52,28 +52,23 @@ python bot.py
 
 ## Użytkowanie
 
-Wejdź na kanał `#blog-input` (lub jak go nazwałeś):
+Wejdź na kanał `#blog-input` (lub jak go nazwałeś) i wrzucaj wiadomości — bot zbiera je w persystentnym buforze (`buffer.json`).
 
-```
-# Wrzucaj notatki przez kilka dni:
-Dziś byłem w górach, widoki niesamowite. Spotkaliśmy sarny przy szlaku.
-[+ załącz zdjęcia jako attachment]
+| Komenda | Opis |
+|---|---|
+| `/blog-help` | Lista komend i workflow |
+| `/blog-status` | Ile notatek i zdjęć czeka w buforze |
+| `/blog-raw` | Podgląd surowych notatek z bufora (bez zdjęć) |
+| `/blog-draft` | Generuje podgląd posta przez LLM (nic nie commituje) |
+| `/blog-publish` | Commituje **dokładnie ten draft** na branch `drafts` i otwiera PR |
+| `/blog-clear` | Czyści bufor bez publikowania |
 
-Wieczorem przy ognisku — rozmowy o sensie życia i o tym dlaczego zawsze
-kończy się kiełbasa zanim skończy się chleb.
+**Workflow:**
+1. Wrzucaj wiadomości i zdjęcia przez kilka dni
+2. `/blog-draft` — sprawdź efekt
+3. `/blog-publish` — opublikuj (używa wygenerowanego draftu, nie generuje ponownie)
 
-# Podgląd draftu (nic nie commituje):
-!blog draft
-
-# Commit do GitHub:
-!blog publish
-
-# Ile zebrałeś:
-!blog status
-
-# Reset bufora:
-!blog clear
-```
+> Nowa wiadomość po `/blog-draft` unieważnia draft — wygeneruj go ponownie przed publishem.
 
 ---
 
@@ -91,15 +86,30 @@ Upewnij się że ścieżka `assets/images/` istnieje w repo (dodaj `.gitkeep` je
 
 ---
 
-## Dostosowanie promptu
+## Styl pisania
 
-Edytuj `SYSTEM_PROMPT` w `claude_client.py` — możesz wkleić tam przykładowe posty
-ze swojego bloga jako few-shot, żeby Claude dopasował styl.
+Bot używa profilu stylu z `blog_context.md` przy każdym generowaniu draftu.  
+Odśwież go po dodaniu nowych postów do `_posts/`:
+
+```bash
+python learn_style.py
+# opcje: --posts-dir ../../_posts --max-posts 15 --dry-run
+```
+
+---
+
+## Backend LLM
+
+Domyślnie Claude (Anthropic API). Możesz przełączyć na lokalny Ollama:
+
+```env
+LLM_BACKEND=ollama
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+```
 
 ---
 
 ## Znane ograniczenia
 
-- Bufor jest **w pamięci** — restart bota czyści zebrane notatki przed publishem.
-  Rozwiązanie: użyj `!blog draft` jako backup przed restartem, albo dodaj SQLite.
 - Zdjęcia z Discorda są dostępne przez ~24h po usunięciu wiadomości — publishuj przed wyczyszczeniem kanału.

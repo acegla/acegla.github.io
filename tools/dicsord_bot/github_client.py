@@ -118,7 +118,7 @@ async def commit_post(md_content: str, slug: str, images: list) -> str:
 
         # 1. Commituj zdjęcia
         for img in images:
-            img_path = f"assets/images/{img['filename']}"
+            img_path = f"assets/photos/{today}/{img['filename']}"
             print(f"Uploading {img_path}...")
             try:
                 # Preferuj lokalny cache, fallback na Discord CDN

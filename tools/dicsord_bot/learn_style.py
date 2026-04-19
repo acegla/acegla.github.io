@@ -81,10 +81,10 @@ def load_posts(posts_dir: Path, max_posts: int) -> list[dict]:
 def build_analysis_prompt(posts: list[dict]) -> str:
     chunks = []
     for p in posts:
-        # Przytnij każdy post do ~1500 znaków żeby nie przekroczyć kontekstu
+        # Przytnij każdy post do ~5000 znaków żeby nie przekroczyć kontekstu
         body = p["body"]
-        if len(body) > 1500:
-            body = body[:1500] + "\n[...skrócono...]"
+        if len(body) > 5000:
+            body = body[:5000] + "\n[...skrócono...]"
         chunks.append(f"### {p['filename']}\n\n{body}")
     return ANALYSIS_PROMPT.format(posts="\n\n---\n\n".join(chunks))
 

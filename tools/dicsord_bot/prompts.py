@@ -57,7 +57,7 @@ def build_user_prompt(entries: list) -> tuple[str, list]:
     prompt = f"""Poniżej surowe notatki z kilku dni. Wygeneruj post na bloga Jekyll.
 
 --- NOTATKI ---
-{"".join(lines)}
+{"\n".join(lines)}
 --- KONIEC NOTATEK ---
 
 Zdjęcia dostępne (użyj ich w odpowiednich miejscach w treści):

@@ -26,3 +26,5 @@ venv
 .DS_Store
 .env
 .claude/
+tools/dicsord_bot/debug_prompt.md
+tools/dicsord_bot/draft_cache.json

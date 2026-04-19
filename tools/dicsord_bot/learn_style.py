@@ -17,6 +17,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+_DEBUG_PROMPT = Path(__file__).parent / "debug_prompt_learn.md"
 
 SCRIPT_DIR = Path(__file__).parent
 REPO_ROOT = SCRIPT_DIR.parent.parent
@@ -141,6 +142,9 @@ def main():
 
     print(f"🤖 Analizuję styl ({args.backend})...")
     try:
+        _DEBUG_PROMPT.write_text(
+            f"# SYSTEM\n\n{prompt}\n\n", encoding="utf-8"
+        )
         if args.backend == "ollama":
             result = call_ollama(prompt)
         else:

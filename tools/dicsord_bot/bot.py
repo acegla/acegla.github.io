@@ -7,6 +7,7 @@ from discord import app_commands
 from github_client import commit_post
 import buffer as buf
 import image_cache
+import draft_cache
 
 LLM_BACKEND = os.getenv("LLM_BACKEND", "claude").lower()
 
@@ -67,10 +68,32 @@ async def on_message(message):
                 print(f"Nie udało się pobrać zdjęcia {att.filename}: {e}")
 
     buf.append(entry)
+    draft_cache.clear()  # nowa notatka unieważnia poprzedni draft
     await message.add_reaction("✅")
 
 
 # ── Slash commands ─────────────────────────────────────────────────────────────
+
+@client.tree.command(name="blog-help", description="Pokazuje dostepne komendy i workflow")
+async def slash_help(interaction: discord.Interaction):
+    await interaction.response.send_message(
+        "**Blog Bot — dostepne komendy**\n\n"
+        "`/blog-help` — ta wiadomosc\n"
+        "`/blog-status` — ile notatek i zdjec czeka w buforze\n"
+        "`/blog-draft` — generuje podglad posta (nic nie commituje)\n"
+        "`/blog-publish` — commituje draft z podgladu na branch `drafts` i otwiera PR\n"
+        "`/blog-clear` — czysci bufor bez publikowania\n\n"
+        "**Workflow:**\n"
+        "1. Wrzucaj wiadomosci i zdjecia na ten kanal — bot zbiera je w buforze\n"
+        "2. `/blog-draft` — sprawdz jak bedzie wygladal post\n"
+        "3. `/blog-publish` — opublikuj dokladnie ten draft (bez ponownego generowania)\n\n"
+        "> Nowa wiadomosc po `/blog-draft` uniewa\u017cnia draft — trzeba go wygenerowac ponownie.\n\n"
+        "**Styl pisania:**\n"
+        "Profil stylu trzymany jest w `blog_context.md`. Odswiezysz go skryptem:\n"
+        "`python learn_style.py` (analizuje posty z `_posts/` i nadpisuje profil)",
+        ephemeral=True,
+    )
+
 
 @client.tree.command(name="blog-draft", description="Generuje draft posta z zebranych notatek (podglad, nic nie commituje)")
 async def slash_draft(interaction: discord.Interaction):
@@ -100,12 +123,28 @@ async def slash_status(interaction: discord.Interaction):
     )
 
 
+@client.tree.command(name="blog-raw", description="Wypisuje surowe notatki z bufora (bez zdjec)")
+async def slash_raw(interaction: discord.Interaction):
+    entries = buf.load()
+    if not entries:
+        await interaction.response.send_message("Bufor pusty.", ephemeral=True)
+        return
+    lines = []
+    for e in entries:
+        lines.append(f"**[{e['timestamp']}] {e['author']}**\n{e['text']}")
+    raw = "\n\n".join(lines)
+    if len(raw) > 1900:
+        raw = raw[:1900] + "\n… (obciete)"
+    await interaction.response.send_message(raw, ephemeral=True)
+
+
 @client.tree.command(name="blog-clear", description="Czysci bufor notatek bez publikowania")
 async def slash_clear(interaction: discord.Interaction):
     entries = buf.load()
     count = len(entries)
     imgs = image_cache.clear_all()
     buf.clear()
+    draft_cache.clear()
     await interaction.response.send_message(f"🗑️ Bufor wyczyszczony ({count} wpisów, {imgs} zdjęć).")
 
 
@@ -117,11 +156,22 @@ async def _handle_draft(interaction: discord.Interaction, publish: bool):
         await interaction.followup.send("Bufor pusty — najpierw wrzuc jakies notatki.")
         return
 
-    try:
-        md_content, slug, images = await generate_draft(entries)
-    except Exception as e:
-        await interaction.followup.send(f"❌ Blad LLM ({LLM_BACKEND}): {e}")
-        return
+    cached = draft_cache.load() if publish else None
+    if cached:
+        md_content, slug, images = cached
+    else:
+        if publish:
+            await interaction.followup.send(
+                "⚠️ Brak zapisanego draftu — generowalem od nowa. "
+                "Nastepnym razem uzyj `/blog-draft` przed publikowaniem."
+            )
+        try:
+            md_content, slug, images = await generate_draft(entries)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Blad LLM ({LLM_BACKEND}): {e}")
+            return
+        if not publish:
+            draft_cache.save(md_content, slug, images)
 
     if publish:
         try:

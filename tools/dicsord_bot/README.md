@@ -2,6 +2,34 @@
 
 Discord bot do tworzenia postów Jekyll z notatek i zdjęć.
 
+Wrzucasz wiadomości i zdjęcia na kanał przez kilka dni → bot zbiera je w buforze → na żądanie LLM generuje gotowy post w stylu bloga → jeden commit do GitHub i PR czeka na merge.
+
+```mermaid
+flowchart LR
+    subgraph Discord
+        A([wiadomości\nzdjęcia]) -->|on_message| B[(buffer.json\nimages/)]
+    end
+
+    subgraph Bot
+        B --> C[/blog-draft/]
+        C -->|LLM| D[(draft_cache.json)]
+        D --> E[/blog-publish/]
+    end
+
+    subgraph GitHub
+        E -->|commit| F[branch drafts/YYYY-MM-DD]
+        F -->|auto PR| G[main]
+    end
+
+    subgraph LLM
+        H{backend}
+        H -->|claude| I[Anthropic API]
+        H -->|ollama| J[lokalny model]
+    end
+
+    C -.-> H
+```
+
 ## Szybki start
 
 ### 1. Discord — utwórz bota
@@ -122,7 +150,3 @@ OLLAMA_MODEL=llama3.2
 ```
 
 ---
-
-## Znane ograniczenia
-
-- Zdjęcia z Discorda są dostępne przez ~24h po usunięciu wiadomości — publishuj przed wyczyszczeniem kanału.
